@@ -51,6 +51,11 @@ folly::coro::Task<void> MoQRelay::onSubscribe(
     }
     forwarder = std::make_shared<MoQForwarder>(
         subReq.fullTrackName, subRes.value()->latest());
+
+    XLOG(DBG1) << __func__
+            << " value===" << subRes.value()->subscribeID();
+
+
     RelaySubscription rsub(
         {forwarder,
          upstreamSessionIt->second,
@@ -118,9 +123,11 @@ void MoQRelay::onUnsubscribe(
   for (auto subscriptionIt = subscriptions_.begin();
        subscriptionIt != subscriptions_.end();) {
     auto& subscription = subscriptionIt->second;
-    subscription.forwarder->removeSession(session, unsub.subscribeID);
+
+    // subscription.forwarder->removeSession(session, unsub.subscribeID);
+
     if (subscription.forwarder->empty()) {
-      XLOG(INFO) << "Removed last subscriber for "
+      XLOG(INFO) << "@@Removed last subscriber for "
                  << subscriptionIt->first.trackNamespace
                  << subscriptionIt->first.trackName;
       subscription.cancellationSource.requestCancellation();
@@ -154,10 +161,11 @@ void MoQRelay::removeSession(const std::shared_ptr<MoQSession>& session) {
       subscription.forwarder->removeSession(session);
     }
     if (subscription.forwarder->empty()) {
-      XLOG(INFO) << "Removed last subscriber for "
+      XLOG(INFO) << "!Removed last subscriber for "
                  << subscriptionIt->first.trackNamespace
                  << subscriptionIt->first.trackName;
       subscription.upstream->unsubscribe({subscription.subscribeID});
+      // _sub
       subscriptionIt = subscriptions_.erase(subscriptionIt);
     } else {
       subscriptionIt++;

@@ -122,6 +122,8 @@ class MoQForwarder {
         XLOG(DBG1) << "Removing session from forwarder";
         it = subscribers_.erase(it);
       } else {
+
+        XLOG(DBG1) << "+++subscribers_.size()=" << subscribers_.size();
         it++;
       }
     }

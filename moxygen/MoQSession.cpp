@@ -266,7 +266,9 @@ void MoQSession::TrackHandle::onObjectPayload(
 }
 
 void MoQSession::onSubscribe(SubscribeRequest subscribeRequest) {
-  XLOG(DBG1) << __func__;
+  XLOG(DBG1) << __func__  
+            << "**subscribe request**"
+               << ", Subscribe ID: " << subscribeRequest.subscribeID;
   // TODO: The publisher should maintain some state like
   //   Subscribe ID -> Track Name, Locations [currently held in MoQForwarder]
   //   Track Alias -> Track Name
@@ -443,9 +445,21 @@ folly::coro::Task<
 MoQSession::subscribe(SubscribeRequest sub) {
   XLOG(DBG1) << __func__;
   auto fullTrackName = sub.fullTrackName;
-  auto subID = nextSubscribeID_++;
-  sub.subscribeID = subID;
+  auto subID = nextSubscribeID_++%2;
+
+   XLOG(DBG1) << __func__
+                << "@@@ sub ID" <<  sub.subscribeID << ">>>>"
+                << "!!!sub ID" << subID
+                << "<><><" << nextSubscribeID_ << "    "
+                << "subize" << subTracks_.size();
+
+          
+  sub.subscribeID = subID % 2;
   sub.trackAlias = sub.subscribeID;
+
+  if (subTracks_.size() > 1) {
+      subTracks_.erase(subID%2);
+  }
   auto wres = writeSubscribeRequest(controlWriteBuf_, std::move(sub));
   if (!wres) {
     XLOG(ERR) << "writeSubscribeRequest failed";

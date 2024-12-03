@@ -41,6 +41,7 @@ class MoQRelayServer : MoQServer {
       XLOG(INFO) << "SubscribeRequest track="
                  << subscribeReq.fullTrackName.trackNamespace << "/"
                  << subscribeReq.fullTrackName.trackName;
+                //  << subscribeReq.subscribeID; 
       server_.relay_.onSubscribe(std::move(subscribeReq), clientSession_)
           .scheduleOn(clientSession_->getEventBase())
           .start();
